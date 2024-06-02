@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import scanpy as sc
+from sklearn.preprocessing import MinMaxScaler
 
 
 def get_h5ad_data(file_name='zebrafish_scNODE0_2000genes_3227cells_12tps.h5ad'):
@@ -40,12 +41,11 @@ class scDataset(Dataset):
 
 
 def get_dataloader(
+    data_list,
     batch_size=64,
     shuffle=True,
-    file_name='zebrafish_scNODE0_2000genes_3227cells_12tps.h5ad',
 ):
-
-    data_list = get_h5ad_data(file_name)
+    # data_list = get_h5ad_data()
 
     dataset = scDataset(data_list)
     dataloader = DataLoader(
@@ -53,3 +53,32 @@ def get_dataloader(
     )
 
     return dataloader
+
+
+def normalize(data_list):
+    """
+    归一化数据列表中的每个numpy数组
+    """
+    normalized_data_list = []
+    scalers = []
+
+    for data in data_list:
+        scaler = MinMaxScaler()
+        normalized_data = scaler.fit_transform(data)
+        normalized_data_list.append(normalized_data)
+        scalers.append(scaler)
+
+    return normalized_data_list, scalers
+
+
+def inverse_normalize(normalized_data_list, scalers):
+    """
+    对归一化后的数据列表中的每个numpy数组进行逆归一化
+    """
+    original_data_list = []
+
+    for normalized_data, scaler in zip(normalized_data_list, scalers):
+        original_data = scaler.inverse_transform(normalized_data)
+        original_data_list.append(original_data)
+
+    return original_data_list
