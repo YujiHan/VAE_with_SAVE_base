@@ -4,11 +4,13 @@ import numpy as np
 import scanpy as sc
 from sklearn.preprocessing import MinMaxScaler
 
+# import pandas as pd
+
 
 def get_h5ad_data(file_name='zebrafish_scNODE0_2000genes_3227cells_12tps.h5ad'):
     # dataset_dir = '/home/hanyuji/Workbench/Data/h5ad/'
     dataset_dir = '/home/hanyuji/Data/scNODE_data/h5ad/'
-    
+
     loaded_adata = sc.read_h5ad(dataset_dir + file_name)
 
     timepoints = sorted(loaded_adata.obs['tp'].unique())
@@ -52,7 +54,7 @@ def get_dataloader(
 ):
     # data_list = get_h5ad_data()
 
-    dataset = scDataset(data_list,label_list)
+    dataset = scDataset(data_list, label_list)
     dataloader = DataLoader(
         dataset, num_workers=4, batch_size=batch_size, shuffle=shuffle
     )
