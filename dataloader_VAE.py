@@ -27,29 +27,32 @@ def get_h5ad_data(file_name='zebrafish_scNODE0_2000genes_3227cells_12tps.h5ad'):
 
 
 class scDataset(Dataset):
-    def __init__(self, data_list):
+    def __init__(self, data_list, label_list):
         self.data_list = data_list
+        self.label_list = label_list
 
     def __len__(self):
         return sum(len(data) for data in self.data_list)
 
     def __getitem__(self, idx):
         # 查找idx所属的numpy数组及其对应的局部idx
-        for label, data in enumerate(self.data_list):
+        for label_index, data in enumerate(self.data_list):
             if idx < len(data):
                 sample = data[idx]
+                label = self.label_list[label_index]
                 return sample, label
             idx -= len(data)
 
 
 def get_dataloader(
     data_list,
+    label_list,
     batch_size=64,
     shuffle=True,
 ):
     # data_list = get_h5ad_data()
 
-    dataset = scDataset(data_list)
+    dataset = scDataset(data_list,label_list)
     dataloader = DataLoader(
         dataset, num_workers=4, batch_size=batch_size, shuffle=shuffle
     )
